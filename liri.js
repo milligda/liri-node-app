@@ -26,6 +26,88 @@ var spotifyQuery = "The Sign";
 var twitterUser = "nytimes";
 var movieName = "Mr Nobody";
 
+function actionPrompt() {
+
+    inquirer.prompt([
+        {
+            type: "list",
+            message: "What would you like to do?",
+            choices: ["Read My Tweets", "Find A Song", "Find A Movie", "Run The Instructions"],
+            name: "action"
+        }
+    ]).then(function(inquirerResponse) {
+    
+        actionSwitch(inquirerResponse.action);
+    });
+}
+
+
+function actionSwitch(op) {
+    switch(op) {
+        case "Read My Tweets":
+            twitterPrompt();
+            break;
+        case "Find A Song":
+            spotifyPrompt();
+            break;
+        case "Find A Movie":
+            moviePrompt();
+            break;
+        case "Run The Instructions":
+            console.log("file");
+            break;
+        default:
+            console.log("you have selected an invalid choice");
+    }
+}
+
+function spotifyPrompt() {
+
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What song would you like to find?",
+            name: "songInput"
+        }
+    ]).then(function(inquirerResponse) {
+
+        spotifyQuery = inquirerResponse.songInput;
+
+        getSpotifySong();
+    });
+}
+
+function twitterPrompt() {
+
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What is your twitter username?",
+            name: "username"
+        }
+    ]).then(function(inquirerResponse) {
+
+        twitterUser = inquirerResponse.username;
+        
+        getTweets();
+    });
+}
+
+function moviePrompt() {
+
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "What movie would you like to find?",
+            name: "movieName"
+        }
+    ]).then(function(inquirerResponse) {
+
+        movieName = inquirerResponse.movieName;
+
+        getMovieData();
+    })
+}
 
 
 function doWhatItSays() {
@@ -36,14 +118,16 @@ function doWhatItSays() {
             console.log(err);
         } else {
 
-            console.log(data);
+            var fileArr = data.split(",");
+
+            console.log(fileArr);
+
+
 
         }
 
     });
 }
-
-doWhatItSays();
 
 function getMovieData() {
 
@@ -126,3 +210,5 @@ function getTweets() {
     });
 }
 
+// display the inquirer when the file is run
+actionPrompt();
