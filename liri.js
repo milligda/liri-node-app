@@ -26,7 +26,7 @@ var spotifyQuery = "The Sign";
 var twitterUser = "nytimes";
 var movieName = "Mr Nobody";
 
-function actionPrompt() {
+function runActionPrompt() {
 
     inquirer.prompt([
         {
@@ -37,31 +37,31 @@ function actionPrompt() {
         }
     ]).then(function(inquirerResponse) {
     
-        actionSwitch(inquirerResponse.action);
+        determineAction(inquirerResponse.action);
     });
 }
 
 
-function actionSwitch(op) {
+function determineAction(op) {
     switch(op) {
         case "Read My Tweets":
-            twitterPrompt();
+            runTwitterPrompt();
             break;
         case "Find A Song":
-            spotifyPrompt();
+            runSpotifyPrompt();
             break;
         case "Find A Movie":
-            moviePrompt();
+            runMoviePrompt();
             break;
         case "Run The Instructions":
-            console.log("file");
+            runInstructions();
             break;
         default:
             console.log("you have selected an invalid choice");
     }
 }
 
-function spotifyPrompt() {
+function runSpotifyPrompt() {
 
     inquirer.prompt([
         {
@@ -77,7 +77,7 @@ function spotifyPrompt() {
     });
 }
 
-function twitterPrompt() {
+function runTwitterPrompt() {
 
     inquirer.prompt([
         {
@@ -93,7 +93,7 @@ function twitterPrompt() {
     });
 }
 
-function moviePrompt() {
+function runMoviePrompt() {
 
     inquirer.prompt([
         {
@@ -110,7 +110,7 @@ function moviePrompt() {
 }
 
 
-function doWhatItSays() {
+function runInstructions() {
 
     fs.readFile("random.txt", "utf8", function(err, data) {
 
@@ -120,12 +120,25 @@ function doWhatItSays() {
 
             var fileArr = data.split(",");
 
-            console.log(fileArr);
+            var instruction = fileArr[0];
 
-
-
+            switch(instruction) {
+                case "my-tweets":
+                    twitterUser = fileArr[1];
+                    getTweets();
+                    break;
+                case "spotify-this-song":
+                    spotifyQuery = fileArr[1];
+                    getSpotifySong();
+                    break;
+                case "movie-this":
+                    movieName = fileArr[1];
+                    getMovieData;
+                    break;
+                default:
+                    console.log("\nThese instructions don't make any sense!  Who wrote this garbage?")
+            }
         }
-
     });
 }
 
@@ -145,14 +158,14 @@ function getMovieData() {
 
             // console.log out the title, artist, album and song url
             console.log("\n********************************");
-            console.log(body.Title);
-            console.log("Created in: " + body.Year);
-            console.log("IMDB Rating: " + body.Ratings[0].Value);
-            console.log("Rotten Tomatoes Score: " + body.Ratings[1].Value);
-            console.log("Produced in: " + body.Country);
-            console.log("Language: " + body.Language);
-            console.log("Main Actors: " + body.Actors);
-            console.log("Plot Summary: " + body.Plot);
+            console.log(body.Title + 
+                        "\nCreated in: " + body.Year + 
+                        "\nIMDB Rating: " + body.Ratings[0].Value + 
+                        "\nRotten Tomatoes Score: " + body.Ratings[1].Value +
+                        "\nProduced in: " + body.Country +
+                        "\nLanguage: " + body.Language +
+                        "\nMain Actors: " + body.Actors +
+                        "\nPlot Summary: " + body.Plot);
         } 
     });
 }
@@ -175,10 +188,10 @@ function getSpotifySong() {
             
             // console.log out the title, artist, album and song url
             console.log("\n********************************");
-            console.log("Track Title: " + trackData.name);
-            console.log("Artist: " + trackData.artists[0].name);
-            console.log("Album: " + trackData.album.name);
-            console.log("Sample: " + trackData.external_urls.spotify);
+            console.log("Track Title: " + trackData.name + 
+                        "\nArtist: " + trackData.artists[0].name + 
+                        "\nAlbum: " + trackData.album.name + 
+                        "\nSample: " + trackData.external_urls.spotify);
         }
     });
 }
@@ -211,4 +224,4 @@ function getTweets() {
 }
 
 // display the inquirer when the file is run
-actionPrompt();
+runActionPrompt();
