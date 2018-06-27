@@ -26,6 +26,9 @@ var spotifyQuery = "The Sign";
 var twitterUser = "nytimes";
 var movieName = "Mr Nobody";
 
+// variable for the log file
+var log = "log.txt"
+
 function runActionPrompt() {
 
     inquirer.prompt([
@@ -157,15 +160,20 @@ function getMovieData() {
             body = JSON.parse(body);
 
             // console.log out the title, artist, album and song url
-            console.log("\n********************************");
-            console.log(body.Title + 
-                        "\nCreated in: " + body.Year + 
-                        "\nIMDB Rating: " + body.Ratings[0].Value + 
-                        "\nRotten Tomatoes Score: " + body.Ratings[1].Value +
-                        "\nProduced in: " + body.Country +
-                        "\nLanguage: " + body.Language +
-                        "\nMain Actors: " + body.Actors +
-                        "\nPlot Summary: " + body.Plot);
+
+            var movieInfo = "\n********************************" + 
+                            "\nTitle: " + body.Title + 
+                            "\nCreated in: " + body.Year + 
+                            "\nIMDB Rating: " + body.Ratings[0].Value + 
+                            "\nRotten Tomatoes Score: " + body.Ratings[1].Value +
+                            "\nProduced in: " + body.Country +
+                            "\nLanguage: " + body.Language +
+                            "\nMain Actors: " + body.Actors +
+                            "\nPlot Summary: " + body.Plot;
+            
+            console.log(movieInfo);
+            postToLog(movieInfo);
+            
         } 
     });
 }
@@ -185,13 +193,16 @@ function getSpotifySong() {
 
             // store the first track returned as a variable
             var trackData = data.tracks.items[0];
+
+            var trackInfo = "\n********************************" + "\nTrack Title: " + trackData.name + 
+                            "\nArtist: " + trackData.artists[0].name + "\nAlbum: " + trackData.album.name + 
+                            "\nSample: " + trackData.external_urls.spotify
             
             // console.log out the title, artist, album and song url
-            console.log("\n********************************");
-            console.log("Track Title: " + trackData.name + 
-                        "\nArtist: " + trackData.artists[0].name + 
-                        "\nAlbum: " + trackData.album.name + 
-                        "\nSample: " + trackData.external_urls.spotify);
+            console.log(trackInfo);
+
+            // log the track information
+            postToLog(trackInfo);
         }
     });
 }
@@ -211,14 +222,34 @@ function getTweets() {
         } else {
 
             // console.log the number of tweets displayed and the username
-            console.log('Here are the ' + twitterParams.count + ' most recent tweets from: ' + twitterParams.screen_name);
 
-            // 
+            var twitterMessage = 'Here are the ' + twitterParams.count + ' most recent tweets from: ' + twitterParams.screen_name;
+            console.log(twitterMessage);
+            postToLog(twitterMessage);
+
+            // console log the tweets and when they were created
             for (var i = 0; i < tweets.length; i++) {
-                console.log("\n********************************");
-                console.log(tweets[i].created_at);
-                console.log(tweets[i].text);
+
+                var tweetDisplay = "\n********************************" + "\n" + tweets[i].created_at + "\n" + tweets[i].text;
+                console.log(tweetDisplay);
+                
+                postToLog(tweetDisplay);
             }
+        }
+    });
+}
+
+// function for posting messages to the log
+function postToLog(message) {
+
+    message = message.replace(/\n/g, "\r\n");
+
+    // append the message to the log file
+    fs.appendFile(log, message, function(err) {
+        
+        // display any errors
+        if (err) {
+            console.log(err);
         }
     });
 }
