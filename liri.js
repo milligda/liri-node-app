@@ -1,7 +1,7 @@
 // utilize dotenv to load the config settings and API keys
 require("dotenv").config();
 
-// require packages
+// required packages
 var inquirer = require('inquirer');
 var Spotify = require('node-spotify-api');
 var Twitter = require('twitter');
@@ -29,8 +29,10 @@ var movieName = "Mr Nobody";
 // variable for the log file
 var log = "log.txt"
 
+// initial function prompting the user to select an option
 function runActionPrompt() {
 
+    // prompt the user
     inquirer.prompt([
         {
             type: "list",
@@ -40,11 +42,12 @@ function runActionPrompt() {
         }
     ]).then(function(inquirerResponse) {
     
+        // pass the response to the determineAction function
         determineAction(inquirerResponse.action);
     });
 }
 
-
+// function that determines which action the user selected and then calls the subsequent function
 function determineAction(op) {
     switch(op) {
         case "Read My Tweets":
@@ -64,8 +67,10 @@ function determineAction(op) {
     }
 }
 
+// function for when a user wants to find a song
 function runSpotifyPrompt() {
 
+    // prompt the user to input the name of the song they are looking for
     inquirer.prompt([
         {
             type: "input",
@@ -74,14 +79,18 @@ function runSpotifyPrompt() {
         }
     ]).then(function(inquirerResponse) {
 
+        // store the song response in the spotifyQuery variable
         spotifyQuery = inquirerResponse.songInput;
 
+        // call the getSpotifySong function
         getSpotifySong();
     });
 }
 
+// function for when a user wants to read their tweets
 function runTwitterPrompt() {
 
+    // prompt the user to input a twitter username
     inquirer.prompt([
         {
             type: "input",
@@ -90,14 +99,18 @@ function runTwitterPrompt() {
         }
     ]).then(function(inquirerResponse) {
 
+        // stores the username entered in the twitterUser variable
         twitterUser = inquirerResponse.username;
         
+        // call the getTweets function
         getTweets();
     });
 }
 
+// function for when a user wants to find a movie
 function runMoviePrompt() {
 
+    // prompt the user to input a movie name
     inquirer.prompt([
         {
             type: "input",
@@ -106,25 +119,31 @@ function runMoviePrompt() {
         }
     ]).then(function(inquirerResponse) {
 
+        // stores the movie name entered in the movieName variable
         movieName = inquirerResponse.movieName;
 
+        // call the getMovieData function
         getMovieData();
     })
 }
 
-
+// function for when the user wants to run the instructions specified in the random.txt file
 function runInstructions() {
 
     fs.readFile("random.txt", "utf8", function(err, data) {
 
+        // log any errors
         if (err) {
             console.log(err);
         } else {
 
+            // split the text in the file into separate items in an array
             var fileArr = data.split(",");
 
+            // the first item in the array are the instructions
             var instruction = fileArr[0];
 
+            // determine which action to run and store the second item in the array
             switch(instruction) {
                 case "my-tweets":
                     twitterUser = fileArr[1];
@@ -150,17 +169,19 @@ function getMovieData() {
     // concatonate the movie name and remove any spaces
     movieName = movieName.replace(/ /g, "+");
 
+    // create the queryURL for the OMDB API call
     var queryURL = "https://www.omdbapi.com/?t=" + movieName + "&" + omdbAPI;
 
+    // use request to access the OMDB API
     request(queryURL, function (error, response, body) {
 
         // if the request is successful
         if (!error && response.statusCode === 200) {
 
+            // parse the response
             body = JSON.parse(body);
 
-            // console.log out the title, artist, album and song url
-
+            // store the relevant information received
             var movieInfo = "\n********************************" + 
                             "\nTitle: " + body.Title + 
                             "\nCreated in: " + body.Year + 
@@ -171,6 +192,7 @@ function getMovieData() {
                             "\nMain Actors: " + body.Actors +
                             "\nPlot Summary: " + body.Plot;
             
+            // console log the movie information and add it to the log
             console.log(movieInfo);
             postToLog(movieInfo);
             
@@ -180,6 +202,7 @@ function getMovieData() {
 
 function getSpotifySong() {
 
+    // search the spotify API for a track with the track name stored in the spotifyQuery variable
     spotify.search({
         type: 'track',
         query: spotifyQuery
@@ -194,14 +217,13 @@ function getSpotifySong() {
             // store the first track returned as a variable
             var trackData = data.tracks.items[0];
 
+            // store the relevant information received 
             var trackInfo = "\n********************************" + "\nTrack Title: " + trackData.name + 
                             "\nArtist: " + trackData.artists[0].name + "\nAlbum: " + trackData.album.name + 
                             "\nSample: " + trackData.external_urls.spotify
             
-            // console.log out the title, artist, album and song url
+            // console log the song information and add it to the log
             console.log(trackInfo);
-
-            // log the track information
             postToLog(trackInfo);
         }
     });
@@ -209,11 +231,13 @@ function getSpotifySong() {
 
 function getTweets() {
 
+    // set the twitter parameters with the number of tweets to display and the twitter username
     var twitterParams = {
         screen_name: twitterUser,
         count: 10,
     };
 
+    // call the twitter API method for getting a user's most recent tweets
     client.get('statuses/user_timeline', twitterParams, function(err, tweets, response) {
         if (err) {
 
@@ -222,8 +246,8 @@ function getTweets() {
         } else {
 
             // console.log the number of tweets displayed and the username
-
             var twitterMessage = 'Here are the ' + twitterParams.count + ' most recent tweets from: ' + twitterParams.screen_name;
+            
             console.log(twitterMessage);
             postToLog(twitterMessage);
 
@@ -231,8 +255,8 @@ function getTweets() {
             for (var i = 0; i < tweets.length; i++) {
 
                 var tweetDisplay = "\n********************************" + "\n" + tweets[i].created_at + "\n" + tweets[i].text;
+
                 console.log(tweetDisplay);
-                
                 postToLog(tweetDisplay);
             }
         }
@@ -242,6 +266,7 @@ function getTweets() {
 // function for posting messages to the log
 function postToLog(message) {
 
+    // replace the linebreak syntax for posting to a txt file
     message = message.replace(/\n/g, "\r\n");
 
     // append the message to the log file
