@@ -124,7 +124,7 @@ function runMoviePrompt() {
 
         // call the getMovieData function
         getMovieData();
-    })
+    });
 }
 
 // function for when the user wants to run the instructions specified in the random.txt file
@@ -193,9 +193,7 @@ function getMovieData() {
                             "\nPlot Summary: " + body.Plot;
             
             // console log the movie information and add it to the log
-            console.log(movieInfo);
             postToLog(movieInfo);
-            
         } 
     });
 }
@@ -220,10 +218,9 @@ function getSpotifySong() {
             // store the relevant information received 
             var trackInfo = "\n********************************" + "\nTrack Title: " + trackData.name + 
                             "\nArtist: " + trackData.artists[0].name + "\nAlbum: " + trackData.album.name + 
-                            "\nSample: " + trackData.external_urls.spotify
+                            "\nSample: " + trackData.preview_url
             
             // console log the song information and add it to the log
-            console.log(trackInfo);
             postToLog(trackInfo);
         }
     });
@@ -245,18 +242,16 @@ function getTweets() {
             return console.log(err);
         } else {
 
-            // console.log the number of tweets displayed and the username
+            // log the number of tweets displayed and the username
             var twitterMessage = 'Here are the ' + twitterParams.count + ' most recent tweets from: ' + twitterParams.screen_name;
             
-            console.log(twitterMessage);
             postToLog(twitterMessage);
 
-            // console log the tweets and when they were created
+            // log the tweets and when they were created
             for (var i = 0; i < tweets.length; i++) {
 
                 var tweetDisplay = "\n********************************" + "\n" + tweets[i].created_at + "\n" + tweets[i].text;
 
-                console.log(tweetDisplay);
                 postToLog(tweetDisplay);
             }
         }
@@ -273,9 +268,10 @@ function postToLog(message) {
     fs.appendFile(log, message, function(err) {
         
         // display any errors
-        if (err) {
-            console.log(err);
-        }
+        if (err) throw err; 
+
+        // display the message in the console
+        console.log(message);
     });
 }
 
