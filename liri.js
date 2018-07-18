@@ -22,7 +22,7 @@ var client = new Twitter(twitterKey);
 var omdbAPI = "apikey=" + omdbKey.api_key;
 
 // variables for storing the user inputs
-var spotifyQuery = "The Sign";
+var spotifyQuery = "Ice Ice Baby";
 var twitterUser = "nytimes";
 var movieName = "Mr Nobody";
 
@@ -79,8 +79,10 @@ function runSpotifyPrompt() {
         }
     ]).then(function(inquirerResponse) {
 
-        // store the song response in the spotifyQuery variable
-        spotifyQuery = inquirerResponse.songInput;
+        // store the song response in the spotifyQuery variable if it is not blank
+        if (inquirerResponse.songInput !== '') {
+            spotifyQuery = inquirerResponse.songInput;
+        }
 
         // call the getSpotifySong function
         getSpotifySong();
@@ -99,9 +101,11 @@ function runTwitterPrompt() {
         }
     ]).then(function(inquirerResponse) {
 
-        // stores the username entered in the twitterUser variable
-        twitterUser = inquirerResponse.username;
-        
+        // stores the username entered in the twitterUser variable if it is not blank
+        if (inquirerResponse.username !== '') {
+            twitterUser = inquirerResponse.username;
+        } 
+
         // call the getTweets function
         getTweets();
     });
@@ -119,8 +123,10 @@ function runMoviePrompt() {
         }
     ]).then(function(inquirerResponse) {
 
-        // stores the movie name entered in the movieName variable
-        movieName = inquirerResponse.movieName;
+        // stores the movie name entered in the movieName variable if it is not blank
+        if (inquirerResponse.movieName !== '') {
+            movieName = inquirerResponse.movieName;
+        }
 
         // call the getMovieData function
         getMovieData();
@@ -181,19 +187,25 @@ function getMovieData() {
             // parse the response
             body = JSON.parse(body);
 
-            // store the relevant information received
-            var movieInfo = "\n********************************" + 
-                            "\nTitle: " + body.Title + 
-                            "\nCreated in: " + body.Year + 
-                            "\nIMDB Rating: " + body.Ratings[0].Value + 
-                            "\nRotten Tomatoes Score: " + body.Ratings[1].Value +
-                            "\nProduced in: " + body.Country +
-                            "\nLanguage: " + body.Language +
-                            "\nMain Actors: " + body.Actors +
-                            "\nPlot Summary: " + body.Plot;
-            
-            // console log the movie information and add it to the log
-            postToLog(movieInfo);
+            if (body.Response === 'False') {
+                
+                console.log("I'm sorry but we cannot find that movie. Please check the spelling and try again.");
+            } else {
+
+                // store the relevant information received
+                    var movieInfo = "\n********************************" + 
+                                    "\nTitle: " + body.Title + 
+                                    "\nCreated in: " + body.Year + 
+                                    "\nIMDB Rating: " + body.Ratings[0].Value + 
+                                    "\nRotten Tomatoes Score: " + body.Ratings[1].Value +
+                                    "\nProduced in: " + body.Country +
+                                    "\nLanguage: " + body.Language +
+                                    "\nMain Actors: " + body.Actors +
+                                    "\nPlot Summary: " + body.Plot;
+
+                // console log the movie information and add it to the log
+                postToLog(movieInfo);
+            }
         } 
     });
 }
